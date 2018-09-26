@@ -2,9 +2,12 @@ var mouseXPos = 1000;
 var mouseYPos = 1000;
 var mapWidth = 10;
 var mapHeight = 10;
+var mines = 15;
+var neighbours;
+var ran;
 var tileMap = [
-  11,10,10,10,10,10,10,10,10,10,
-  10,10,11,10,11,10,10,10,10,10,
+  10,10,10,10,10,10,10,10,10,10,
+  10,10,10,10,10,10,10,10,10,10,
   10,10,10,10,10,10,10,10,10,10,
   10,10,10,10,10,10,10,10,10,10,
   10,10,10,10,10,10,10,10,10,10,
@@ -18,32 +21,76 @@ var tileMap = [
 function setup(){
   createCanvas(803,803);
   strokeWeight(5);
+  textSize(75);
+  setMines();
+  checkNeighbours();
 }
 
 function draw(){
   background(255);
   tiles();
-  fill(0, 102, 153);
-  textSize(50);
-  // text(tileMap[0*10+0], 0*80+10, 0*80+60);
+  // fill(0, 102, 153);
+  // text(6, 2*80+20, 1*80+67);
 }
 
 function tiles(){
-  for(col = 0; col < 10; col++){
-    for(row = 0; row < 10; row++){
+  for(row = 0; row < 10; row++){
+    for(col = 0; col < 10; col++){
       ifClicked(col, row);
-      if(tileMap[col*10+row] < 9){
+      if(tileMap[row*10+col] < 9){
         fill(102);
       } else{
         fill(51);
       }
-      rect(row*80, col*80, 80, 80);
-      if(tileMap[col*10+row] > 0 && tileMap[col*10+row] < 9){
+      rect(col*80, row*80, 80, 80);
+      if(tileMap[row*10+col] > 0 && tileMap[row*10+col] < 9){
         fill(0, 102, 153);
-        textSize(50);
-        text(tileMap[col*10+row], col*80+10, row*80+60);
+        text(tileMap[row*10+col], col*80+20, row*80+67);
       }
     }
+  }
+}
+
+function checkNeighbours(){
+  for(row = 0; row < 10; row++){
+    for(col = 0; col < 10; col++){
+      neighbours = 0;
+      if(tileMap[(row-1)*10+(col-1)] == 9){
+        neighbours++;
+      }
+      if(tileMap[(row-1)*10+col] == 9){
+        neighbours++;
+      }
+      if(tileMap[(row-1)*10+(col+1)] == 9){
+        neighbours++;
+      }
+      if(tileMap[row*10+(col-1)] == 9){
+        neighbours++;
+      }
+      if(tileMap[row*10+(col+1)] == 9){
+        neighbours++;
+      }
+      if(tileMap[(row+1)*10+(col-1)] == 9){
+        neighbours++;
+      }
+      if(tileMap[(row+1)*10+col] == 9){
+        neighbours++;
+      }
+      if(tileMap[(row+1)*10+(col+1)] == 9){
+        neighbours++;
+      }
+      tileMap[row*10+col] += neighbours;
+    }
+  }
+}
+
+function setMines(){
+  for(i = 0; i < mines; i++){
+    ran = random(100);
+    while(tileMap[Math.floor(ran)] == 9){
+      ran = random(100);
+    }
+    tileMap[Math.floor(ran)] = 9;
   }
 }
 
@@ -84,6 +131,8 @@ function gameOver(){
   mouseXPos = 1000;
   mouseYPos = 1000;
   for(i = 0; i < 100; i++){
-    tileMap[i] = 0;
+    tileMap[i] = 10;
   }
+  setMines();
+  checkNeighbours();
 }
