@@ -2,14 +2,14 @@ var mouseXPos = 1000;
 var mouseYPos = 1000;
 var mapWidth = 10;
 var mapHeight = 10;
-var mines = 15;
+var mines = 3;
 var neighbours;
 var ran;
 var tileMap = [
   10,10,10,10,10,10,10,10,10,10,
+  10,09,10,10,10,10,10,10,09,10,
   10,10,10,10,10,10,10,10,10,10,
-  10,10,10,10,10,10,10,10,10,10,
-  10,10,10,10,10,10,10,10,10,10,
+  10,10,10,10,10,09,10,10,10,10,
   10,10,10,10,10,10,10,10,10,10,
   10,10,10,10,10,10,10,10,10,10,
   10,10,10,10,10,10,10,10,10,10,
@@ -22,7 +22,7 @@ function setup(){
   createCanvas(803,803);
   strokeWeight(5);
   textSize(75);
-  setMines();
+  //setMines();
   checkNeighbours();
 }
 
