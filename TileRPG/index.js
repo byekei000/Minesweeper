@@ -1,8 +1,9 @@
 var mouseXPos = 1000;
 var mouseYPos = 1000;
-var mapWidth = 11;
-var mapHeight = 11;
-var mines = 10;
+var mouseButtn = 0;
+var mapWidth = 10;
+var mapHeight = 10;
+var mines = Math.round((mapWidth*mapHeight)/6.4);
 var hidden = mapWidth*mapHeight;
 var neighbours;
 var ran;
@@ -23,6 +24,7 @@ function setup(){
   createCanvas(mapWidth*80+3,mapHeight*80+3);
   strokeWeight(5);
   textSize(75);
+  textWidth(1);
   for(i = 0; i < mapWidth*mapHeight; i++){
     tileMap[i] = 10;
   }
@@ -33,6 +35,7 @@ function setup(){
 function draw(){
   background(255);
   tiles();
+  mouseButtn = 2;
   // fill(0, 102, 153);
   // text(6, 2*80+20, 1*80+67);
 }
@@ -42,6 +45,7 @@ function tiles(){
   for(row = 0; row < mapHeight; row++){
     for(col = 0; col < mapWidth; col++){
       ifClicked(col, row);
+      strokeWeight(5);
       if(tileMap[row*mapHeight+col] < 9){
         fill(102);
       } else{
@@ -50,13 +54,26 @@ function tiles(){
       }
       rect(col*80, row*80, 80, 80);
       if(tileMap[row*mapHeight+col] > 0 && tileMap[row*mapHeight+col] < 9){
-        fill(0, 102, 153);
+        if(tileMap[row*mapHeight+col] == 1){
+          fill(0,0,255);
+        } else if(tileMap[row*mapHeight+col] == 2){
+          fill(0,155,0);
+        } else if(tileMap[row*mapHeight+col] == 3){
+          fill(255,0,0);
+        } else fill(0,0,255);
         text(tileMap[row*mapHeight+col], col*80+20, row*80+67);
+      }
+      if(tileMap[row*mapHeight+col] > 18){
+        strokeWeight(3);
+        fill(0);
+        line(col*80+54, row*80+10, col*80+54, row*80+70);
+        fill(255, 0, 0);
+        triangle(col*80+54, row*80+10, col*80+27, row*80+25, col*80+54, row*80+40);
       }
     }
   }
   if(hidden == mines){
-    gameOver();
+    win();
   }
 }
 
@@ -133,10 +150,18 @@ function setMines(){
 
 function ifClicked(col, row){
   if(mouseXPos < col*80+80 && mouseXPos > col*80 && mouseYPos < row*80+80 && mouseYPos > row*80){
-    if(tileMap[row*mapHeight+col] == 9){
-      gameOver();
-    } else {
-      uncover(col, row);
+    if(mouseButtn == 1){
+      if(tileMap[row*mapHeight+col] > 18){
+        tileMap[row*mapHeight+col] -= 10;
+      } else if(tileMap[row*mapHeight+col] > 8){
+        tileMap[row*mapHeight+col] += 10;
+      }
+    } else if(mouseButtn == 0){
+      if(tileMap[row*mapHeight+col] == 9){
+        lose();
+      } else {
+        uncover(col, row);
+      }
     }
   }
 }
@@ -283,7 +308,7 @@ function uncover(col, row){
   }
 }
 
-function gameOver(){
+function lose(){
   mouseXPos = 1000;
   mouseYPos = 1000;
   for(i = 0; i < mapWidth*mapHeight; i++){
@@ -294,6 +319,11 @@ function gameOver(){
 }
 
 function mouseReleased(){
+  if(mouseButton === LEFT){
+    mouseButtn = 0;
+  } else if(mouseButton === RIGHT){
+    mouseButtn = 1;
+  }
   mouseXPos = mouseX;
   mouseYPos = mouseY;
 }
@@ -379,3 +409,4 @@ function bottomRight2(row, col){
     tileMap[(row+1)*mapHeight+(col+1)] -= 10;
   }
 }
+
