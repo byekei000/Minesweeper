@@ -1,8 +1,9 @@
 var mouseXPos = 1000;
 var mouseYPos = 1000;
-var mapWidth = 10;
-var mapHeight = 10;
-var mines = 15;
+var mapWidth = 11;
+var mapHeight = 11;
+var mines = 10;
+var hidden = mapWidth*mapHeight;
 var neighbours;
 var ran;
 var tileMap = [
@@ -19,10 +20,13 @@ var tileMap = [
 ];
 
 function setup(){
-  createCanvas(803,803);
+  createCanvas(mapWidth*80+3,mapHeight*80+3);
   strokeWeight(5);
   textSize(75);
-  // setMines();
+  for(i = 0; i < mapWidth*mapHeight; i++){
+    tileMap[i] = 10;
+  }
+  setMines();
   checkNeighbours();
 }
 
@@ -34,36 +38,41 @@ function draw(){
 }
 
 function tiles(){
-  for(row = 0; row < 10; row++){
-    for(col = 0; col < 10; col++){
+  hidden = 0;
+  for(row = 0; row < mapHeight; row++){
+    for(col = 0; col < mapWidth; col++){
       ifClicked(col, row);
-      if(tileMap[row*10+col] < 9){
+      if(tileMap[row*mapHeight+col] < 9){
         fill(102);
       } else{
         fill(51);
+        hidden++;
       }
       rect(col*80, row*80, 80, 80);
-      if(tileMap[row*10+col] > 0 && tileMap[row*10+col] < 9){
+      if(tileMap[row*mapHeight+col] > 0 && tileMap[row*mapHeight+col] < 9){
         fill(0, 102, 153);
-        text(tileMap[row*10+col], col*80+20, row*80+67);
+        text(tileMap[row*mapHeight+col], col*80+20, row*80+67);
       }
     }
+  }
+  if(hidden == mines){
+    gameOver();
   }
 }
 
 function checkNeighbours(){
-  for(row = 0; row < 10; row++){
-    for(col = 0; col < 10; col++){
+  for(row = 0; row < mapHeight; row++){
+    for(col = 0; col < mapWidth; col++){
       neighbours = 0;
       if(row == 0 && col == 0){
         middleRight(row, col);
         bottomMiddle(row, col);
         bottomRight(row, col);
-      } else if(row == 0 && col == 9){
+      } else if(row == 0 && col == mapWidth-1){
         middleLeft(row, col);
         bottomLeft(row, col);
         bottomMiddle(row, col);
-      } else if(row == 9 && col == 9){
+      } else if(row == mapHeight-1 && col == mapWidth-1){
         topLeft(row, col);
         topMiddle(row, col);
         middleLeft(row, col);
@@ -77,13 +86,13 @@ function checkNeighbours(){
         bottomRight(row, col);
         middleLeft(row, col);
         middleRight(row, col);
-      } else if(col == 9){
+      } else if(col == mapWidth-1){
         topLeft(row, col);
         topMiddle(row, col);
         middleLeft(row, col);
         bottomMiddle(row, col);
         bottomLeft(row, col);
-      } else if(row == 9){
+      } else if(row == mapHeight-1){
         middleLeft(row, col);
         middleRight(row, col);
         topLeft(row, col);
@@ -105,8 +114,8 @@ function checkNeighbours(){
         bottomMiddle(row, col);
         bottomRight(row, col);
       }
-      if(tileMap[row*10+col] != 9){
-          tileMap[row*10+col] += neighbours;
+      if(tileMap[row*mapHeight+col] != 9){
+          tileMap[row*mapHeight+col] += neighbours;
       }
     }
   }
@@ -114,9 +123,9 @@ function checkNeighbours(){
 
 function setMines(){
   for(i = 0; i < mines; i++){
-    ran = random(100);
+    ran = random(mapWidth*mapHeight);
     while(tileMap[Math.floor(ran)] == 9){
-      ran = random(100);
+      ran = random(mapWidth*mapHeight);
     }
     tileMap[Math.floor(ran)] = 9;
   }
@@ -124,7 +133,7 @@ function setMines(){
 
 function ifClicked(col, row){
   if(mouseXPos < col*80+80 && mouseXPos > col*80 && mouseYPos < row*80+80 && mouseYPos > row*80){
-    if(tileMap[row*10+col] == 9){
+    if(tileMap[row*mapHeight+col] == 9){
       gameOver();
     } else {
       uncover(col, row);
@@ -133,48 +142,155 @@ function ifClicked(col, row){
 }
 
 function uncover(col, row){
-  if(tileMap[row*10+col] > 9){
-    if(tileMap[col*10+row] == 10){
-      if(tileMap[(row-1)*10+(col-1)] > 10){
-        tileMap[(row-1)*10+(col-1)] -= 10;
-      }
-      if(tileMap[(row-1)*10+col] > 10){
-        tileMap[(row-1)*10+col] -= 10;
-      }
-      if(tileMap[(row-1)*10+(col+1)] > 10){
-        tileMap[(row-1)*10+(col+1)] -= 10;
-      }
-      if(tileMap[row*10+(col-1)] > 10){
-        tileMap[row*10+(col-1)] -= 10;
-      }
-      if(tileMap[row*10+(col+1)] > 10){
-        tileMap[row*10+(col+1)] -= 10;
-      }
-      if(tileMap[(row+1)*10+(col-1)] > 10){
-        tileMap[(row+1)*10+(col-1)] -= 10;
-      }
-      if(tileMap[(row+1)*10+col] > 10){
-        tileMap[(row+1)*10+col] -= 10;
-      }
-      if(tileMap[(row+1)*10+(col+1)] > 10){
-        tileMap[(row+1)*10+(col+1)] -= 10;
+  if(tileMap[row*mapHeight+col] > 9){
+    if(tileMap[row*mapHeight+col] == 10){
+      if(row == 0 && col == 0){
+        middleRight2(row, col);
+        bottomMiddle2(row, col);
+        bottomRight2(row, col);
+      } else if(row == 0 && col == mapWidth-1){
+        middleLeft2(row, col);
+        bottomLeft2(row, col);
+        bottomMiddle2(row, col);
+      } else if(row == mapHeight-1 && col == mapWidth-1){
+        topLeft2(row, col);
+        topMiddle2(row, col);
+        middleLeft2(row, col);
+      } else if(row == mapHeight-1 && col == 0){
+        topMiddle2(row, col);
+        topRight2(row, col);
+        middleRight2(row, col);
+      } else if(row == 0){
+        bottomLeft2(row, col);
+        bottomMiddle2(row, col);
+        bottomRight2(row, col);
+        middleLeft2(row, col);
+        middleRight2(row, col);
+      } else if(col == mapWidth-1){
+        topLeft2(row, col);
+        topMiddle2(row, col);
+        middleLeft2(row, col);
+        bottomMiddle2(row, col);
+        bottomLeft2(row, col);
+      } else if(row == mapHeight-1){
+        middleLeft2(row, col);
+        middleRight2(row, col);
+        topLeft2(row, col);
+        topMiddle2(row, col);
+        topRight2(row, col);
+      } else if(col == 0){
+        topMiddle2(row, col);
+        topRight2(row, col);
+        middleRight2(row, col);
+        bottomRight2(row, col);
+        bottomMiddle2(row, col);
+      } else{
+        topLeft2(row, col);
+        topMiddle2(row, col);
+        topRight2(row, col);
+        middleLeft2(row, col);
+        middleRight2(row, col);
+        bottomLeft2(row, col);
+        bottomMiddle2(row, col);
+        bottomRight2(row, col);
       }
     }
-    tileMap[row*10+col] -= 10;
-    if(tileMap[row*10+(col-1)] == 10){
-      uncover(col-1, row);
+    tileMap[row*mapHeight+col] -= 10;
+    if(tileMap[row*mapHeight+col] == 0){
+      if(row == 0 & col == 0){
+        if(tileMap[row*mapHeight+(col+1)] == 10){
+          uncover(col+1, row);
+        }
+        if(tileMap[(row+1)*mapHeight+col] == 10){
+          uncover(col, row+1);
+        }
+      } else if(row == 0 && col == mapWidth-1){
+        if(tileMap[row*mapHeight+(col-1)] == 10){
+          uncover(col-1, row);
+        }
+        if(tileMap[(row+1)*mapHeight+col] == 10){
+          uncover(col, row+1);
+        }
+      } else if(row == mapHeight-1 && col == mapWidth-1){
+        if(tileMap[(row-1)*mapHeight+col] == 10){
+          uncover(col, row-1);
+        }
+        if(tileMap[row*mapHeight+(col-1)] == 10){
+          uncover(col-1, row);
+        }
+      } else if(row == mapHeight-1 && col == 0){
+        if(tileMap[(row-1)*mapHeight+col] == 10){
+          uncover(col, row-1);
+        }
+        if(tileMap[row*mapHeight+(col+1)] == 10){
+          uncover(col+1, row);
+        }
+      } else if(row == 0){
+        if(tileMap[row*mapHeight+(col-1)] == 10){
+          uncover(col-1, row);
+        }
+        if(tileMap[row*mapHeight+(col+1)] == 10){
+          uncover(col+1, row);
+        }
+        if(tileMap[(row+1)*mapHeight+col] == 10){
+          uncover(col, row+1);
+        }
+      } else if(col == mapWidth-1){
+        if(tileMap[row*mapHeight+(col-1)] == 10){
+          uncover(col-1, row);
+        }
+        if(tileMap[(row-1)*mapHeight+col] == 10){
+          uncover(col, row-1);
+        }
+        if(tileMap[(row+1)*mapHeight+col] == 10){
+          uncover(col, row+1);
+        }
+      } else if(row == mapHeight-1){
+        if(tileMap[row*mapHeight+(col-1)] == 10){
+          uncover(col-1, row);
+        }
+        if(tileMap[row*mapHeight+(col+1)] == 10){
+          uncover(col+1, row);
+        }
+        if(tileMap[(row-1)*mapHeight+col] == 10){
+          uncover(col, row-1);
+        }
+      } else if(col == 0){
+        if(tileMap[row*mapHeight+(col+1)] == 10){
+          uncover(col+1, row);
+        }
+        if(tileMap[(row-1)*mapHeight+col] == 10){
+          uncover(col, row-1);
+        }
+        if(tileMap[(row+1)*mapHeight+col] == 10){
+          uncover(col, row+1);
+        }
+      } else{
+        if(tileMap[row*mapHeight+(col-1)] == 10){
+          uncover(col-1, row);
+        }
+        if(tileMap[row*mapHeight+(col+1)] == 10){
+          uncover(col+1, row);
+        }
+        if(tileMap[(row-1)*mapHeight+col] == 10){
+          uncover(col, row-1);
+        }
+        if(tileMap[(row+1)*mapHeight+col] == 10){
+          uncover(col, row+1);
+        }
+      }
     }
-    if(tileMap[row*10+(col+1)] == 10){
-      uncover(col+1, row);
-    }
-    if(tileMap[(row-1)*10+col] == 10){
-      uncover(col, row-1);
-    }
-    if(tileMap[(row+1)*10+col] == 10){
-      uncover(col, row+1);
-    }
-
   }
+}
+
+function gameOver(){
+  mouseXPos = 1000;
+  mouseYPos = 1000;
+  for(i = 0; i < mapWidth*mapHeight; i++){
+    tileMap[i] = 10;
+  }
+  setMines();
+  checkNeighbours();
 }
 
 function mouseReleased(){
@@ -182,53 +298,84 @@ function mouseReleased(){
   mouseYPos = mouseY;
 }
 
-function gameOver(){
-  mouseXPos = 1000;
-  mouseYPos = 1000;
-  for(i = 0; i < 100; i++){
-    tileMap[i] = 10;
-  }
-  setMines();
-  checkNeighbours();
-}
-
 function topLeft(row, col){
-  if(tileMap[(row-1)*10+(col-1)] == 9){
+  if(tileMap[(row-1)*mapHeight+(col-1)] == 9){
     neighbours++;
   }
 }
 function topMiddle(row, col){
-  if(tileMap[(row-1)*10+col] == 9){
+  if(tileMap[(row-1)*mapHeight+col] == 9){
     neighbours++;
   }
 }
 function topRight(row, col){
-  if(tileMap[(row-1)*10+(col+1)] == 9){
+  if(tileMap[(row-1)*mapHeight+(col+1)] == 9){
     neighbours++;
   }
 }
 function middleLeft(row, col){
-  if(tileMap[row*10+(col-1)] == 9){
+  if(tileMap[row*mapHeight+(col-1)] == 9){
     neighbours++;
   }
 }
 function middleRight(row, col){
-  if(tileMap[row*10+(col+1)] == 9){
+  if(tileMap[row*mapHeight+(col+1)] == 9){
     neighbours++;
   }
 }
 function bottomLeft(row, col){
-  if(tileMap[(row+1)*10+(col-1)] == 9){
+  if(tileMap[(row+1)*mapHeight+(col-1)] == 9){
     neighbours++;
   }
 }
 function bottomMiddle(row, col){
-  if(tileMap[(row+1)*10+col] == 9){
+  if(tileMap[(row+1)*mapHeight+col] == 9){
     neighbours++;
   }
 }
 function bottomRight(row, col){
-  if(tileMap[(row+1)*10+(col+1)] == 9){
+  if(tileMap[(row+1)*mapHeight+(col+1)] == 9){
     neighbours++;
+  }
+}
+
+function topLeft2(row, col){
+  if(tileMap[(row-1)*mapHeight+(col-1)] > 10){
+    tileMap[(row-1)*mapHeight+(col-1)] -= 10;
+  }
+}
+function topMiddle2(row, col){
+  if(tileMap[(row-1)*mapHeight+col] > 10){
+    tileMap[(row-1)*mapHeight+col] -= 10;
+  }
+}
+function topRight2(row, col){
+  if(tileMap[(row-1)*mapHeight+(col+1)] > 10){
+    tileMap[(row-1)*mapHeight+(col+1)] -= 10;
+  }
+}
+function middleLeft2(row, col){
+  if(tileMap[row*mapHeight+(col-1)] > 10){
+    tileMap[row*mapHeight+(col-1)] -= 10;
+  }
+}
+function middleRight2(row, col){
+  if(tileMap[row*mapHeight+(col+1)] > 10){
+    tileMap[row*mapHeight+(col+1)] -= 10;
+  }
+}
+function bottomLeft2(row, col){
+  if(tileMap[(row+1)*mapHeight+(col-1)] > 10){
+    tileMap[(row+1)*mapHeight+(col-1)] -= 10;
+  }
+}
+function bottomMiddle2(row, col){
+  if(tileMap[(row+1)*mapHeight+col] > 10){
+    tileMap[(row+1)*mapHeight+col] -= 10;
+  }
+}
+function bottomRight2(row, col){
+  if(tileMap[(row+1)*mapHeight+(col+1)] > 10){
+    tileMap[(row+1)*mapHeight+(col+1)] -= 10;
   }
 }
